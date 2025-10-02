@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import QUESTIONS from "../data/mock-qa.js";
 import quizCompleteImg from "../assets/quiz-complete.png";
+import QuestionTimer from "./QuestionTimer.jsx";
 export default function Quiz() {
   const [userAnswers, setUsersAnswers] = useState([]);
   const activeQuestionIndex = userAnswers.length;
@@ -9,11 +10,19 @@ export default function Quiz() {
    * adds selected answer from user into `userAnswers` array.
    * @param {string} selectedAnswer
    * */
-  function handleSelectAnswer(selectedAnswer) {
+  const handleSelectAnswer = useCallback(function handleSelectAnswer(
+    selectedAnswer,
+  ) {
     setUsersAnswers((prevUserAnswers) => {
       return [...prevUserAnswers, selectedAnswer];
     });
-  }
+  }, []);
+  // useCallback since this function dependss on props and state
+  const handleSkipAnswer = useCallback(
+    () => handleSelectAnswer(null),
+    [handleSelectAnswer],
+  );
+
   // show image if quiz is complete
   if (quizIsComplete) {
     return (
@@ -30,10 +39,16 @@ export default function Quiz() {
   return (
     <div id="quiz">
       <div id="question">
+        {/* reset timer `(progressbar)` using `key={activeQuestionIndex}` to make sure it starts a new question */}
+        <QuestionTimer
+          key={activeQuestionIndex}
+          timeout={10000}
+          onTimeout={handleSkipAnswer}
+        />
         <p>{QUESTIONS[activeQuestionIndex].text}</p>
         <ul id="answers">
           {shuffleAnswers.map((answer) => (
-            <li key={answer} className={"answer"}>
+            <li key={answer} className="answer">
               <button onClick={() => handleSelectAnswer(answer)}>
                 {answer}
               </button>
