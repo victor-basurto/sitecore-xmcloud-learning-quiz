@@ -20,7 +20,6 @@ export default function QuestionTimer({ timeout, onTimeout, mode }) {
     };
   }, []);
 
-  console.log(mode);
   return (
     <>
       <progress
